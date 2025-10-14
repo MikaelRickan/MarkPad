@@ -1,16 +1,22 @@
+using System;
+using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
+using Avalonia.VisualTree;
+using AvaloniaEdit;
 using MarkPad.Desktop.ViewModels;
-using System.Linq;
 
 namespace MarkPad.Desktop;
 
 public partial class MainWindow : Window
 {
     private MainViewModel? ViewModel => DataContext as MainViewModel;
+    private TextEditor? _currentEditor;
     
     public MainWindow()
     {
@@ -23,18 +29,107 @@ public partial class MainWindow : Window
         // Setup keyboard shortcuts
         KeyDown += OnKeyDown;
         
-        // Setup mouse wheel zoom when the window is loaded
+        // Setup mouse wheel zoom and tab tracking when the window is loaded
         Loaded += MainWindow_Loaded;
+        
+        // Track DataContext changes to wire up tab changes
+        DataContextChanged += MainWindow_DataContextChanged;
+    }
+    
+    private void MainWindow_DataContextChanged(object? sender, EventArgs e)
+    {
+        if (ViewModel != null)
+        {
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+        }
+    }
+    
+    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        // When the selected tab changes, find the new editor
+        if (e.PropertyName == nameof(MainViewModel.SelectedTab))
+        {
+            UpdateCurrentEditor();
+        }
     }
     
     private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
     {
-        // Setup mouse wheel zoom for preview
-        var previewScrollViewer = this.FindControl<ScrollViewer>("PreviewScrollViewer");
-        if (previewScrollViewer != null)
+        // Setup mouse wheel zoom for preview  
+        var tabControl = this.FindControl<TabControl>("DocumentTabs");
+        if (tabControl != null)
         {
-            previewScrollViewer.PointerWheelChanged += PreviewScrollViewer_PointerWheelChanged;
+            tabControl.SelectionChanged += TabControl_SelectionChanged;
+            
+            // Also listen to when containers are prepared
+            tabControl.Loaded += (s, args) => UpdateCurrentEditor();
         }
+        
+        // Find initial editor with delay to ensure visual tree is ready
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => 
+        {
+            UpdateCurrentEditor();
+        }, Avalonia.Threading.DispatcherPriority.Loaded);
+    }
+    
+    private void TabControl_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        UpdateCurrentEditor();
+    }
+    
+    // Called when the TextEditor is loaded in a tab
+    private void EditorTextBox_Loaded(object? sender, RoutedEventArgs e)
+    {
+        if (sender is TextEditor editor)
+        {
+            _currentEditor = editor;
+            System.Diagnostics.Debug.WriteLine($"✅ Editor loaded and assigned: {editor.GetHashCode()}");
+        }
+    }
+    
+    // Called when the PreviewScrollViewer is loaded in a tab
+    private void PreviewScrollViewer_Loaded(object? sender, RoutedEventArgs e)
+    {
+        if (sender is ScrollViewer scrollViewer)
+        {
+            // Remove old handler if exists (in case of reload)
+            scrollViewer.PointerWheelChanged -= PreviewScrollViewer_PointerWheelChanged;
+            // Add new handler
+            scrollViewer.PointerWheelChanged += PreviewScrollViewer_PointerWheelChanged;
+            System.Diagnostics.Debug.WriteLine($"✅ ScrollViewer loaded and wired: {scrollViewer.GetHashCode()}");
+        }
+    }
+    
+    private void UpdateCurrentEditor()
+    {
+        // Use a short delay to ensure visual tree is ready
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            var tabControl = this.FindControl<TabControl>("DocumentTabs");
+            if (tabControl == null) return;
+            
+            // Find all TextEditors in the visual tree
+            var editors = tabControl.GetVisualDescendants().OfType<TextEditor>().ToList();
+            
+            if (editors.Count > 0)
+            {
+                // The visible editor is the one we want
+                _currentEditor = editors.FirstOrDefault(e => e.IsVisible);
+                
+                if (_currentEditor != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"✅ Found editor via tree search: {_currentEditor.GetHashCode()}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("❌ No visible editor found");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("❌ No editors found in visual tree");
+            }
+        }, Avalonia.Threading.DispatcherPriority.Loaded);
     }
     
     // Drag and Drop Handlers
@@ -210,35 +305,27 @@ public partial class MainWindow : Window
     // Helper methods for formatting
     private void ApplyWrappingFormat(string prefix, string suffix)
     {
-        if (ViewModel?.SelectedTab == null) return;
+        if (ViewModel?.SelectedTab == null || _currentEditor == null) return;
         
-        // Find the EditorTextBox in the current tab's visual tree
-        var editor = this.FindControl<AvaloniaEdit.TextEditor>("EditorTextBox");
-        if (editor == null) return;
-        
-        int selectionStart = editor.SelectionStart;
-        int selectionLength = editor.SelectionLength;
+        int selectionStart = _currentEditor.SelectionStart;
+        int selectionLength = _currentEditor.SelectionLength;
         
         ViewModel.ApplyFormatting(prefix, suffix, selectionStart, selectionLength);
         
         // Restore focus to editor
-        editor.Focus();
+        _currentEditor.Focus();
     }
     
     private void ApplyLinePrefix(string prefix)
     {
-        if (ViewModel?.SelectedTab == null) return;
+        if (ViewModel?.SelectedTab == null || _currentEditor == null) return;
         
-        // Find the EditorTextBox in the current tab's visual tree
-        var editor = this.FindControl<AvaloniaEdit.TextEditor>("EditorTextBox");
-        if (editor == null) return;
-        
-        int selectionStart = editor.SelectionStart;
+        int selectionStart = _currentEditor.SelectionStart;
         
         ViewModel.ApplyLineFormatting(prefix, selectionStart);
         
         // Restore focus to editor
-        editor.Focus();
+        _currentEditor.Focus();
     }
     
     // Keyboard shortcuts handler

@@ -147,6 +147,7 @@
         
         <!-- TabControl for Multiple Documents -->
         <TabControl Grid.Row="2" 
+                    Name="DocumentTabs"
                     ItemsSource="{Binding Tabs}"
                     SelectedItem="{Binding SelectedTab}"
                     Padding="0"
@@ -196,7 +197,8 @@
                                                 Padding="16,12"
                                                 BorderThickness="0"
                                                 Background="{DynamicResource EditorBackgroundBrush}"
-                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                Foreground="{DynamicResource TextPrimaryBrush}"
+                                                Loaded="EditorTextBox_Loaded"/>
                             </Grid>
                         </Border>
                         
@@ -222,7 +224,7 @@
                                                Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 </Border>
                                 
-                                <ScrollViewer Grid.Row="1" Name="PreviewScrollViewer">
+                                <ScrollViewer Grid.Row="1" Name="PreviewScrollViewer" Loaded="PreviewScrollViewer_Loaded">
                                     <Border RenderTransformOrigin="0.5,0.5">
                                         <Border.RenderTransform>
                                             <ScaleTransform ScaleX="{Binding PreviewZoom}" 

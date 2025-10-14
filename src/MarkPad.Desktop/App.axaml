@@ -8,6 +8,16 @@
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml"/>
         <StyleInclude Source="avares://LiveMarkdown.Avalonia/Styles.axaml"/>
         <StyleInclude Source="/Styles/AppStyles.axaml"/>
+        
+        <!-- Custom hyperlink styles for LiveMarkdown -->
+        <Style Selector="TextBlock.Hyperlink">
+            <Setter Property="Foreground" Value="#0078D4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="TextDecorations" Value="Underline"/>
+        </Style>
+        <Style Selector="TextBlock.Hyperlink:pointerover">
+            <Setter Property="Foreground" Value="#004578"/>
+        </Style>
     </Application.Styles>
     
     <Application.Resources>

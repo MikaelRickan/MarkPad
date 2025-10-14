@@ -28,7 +28,20 @@ public class MainViewModel : INotifyPropertyChanged
         {
             if (_selectedTab != value)
             {
+                // Unsubscribe from old tab
+                if (_selectedTab != null)
+                {
+                    _selectedTab.PropertyChanged -= SelectedTab_PropertyChanged;
+                }
+                
                 _selectedTab = value;
+                
+                // Subscribe to new tab
+                if (_selectedTab != null)
+                {
+                    _selectedTab.PropertyChanged += SelectedTab_PropertyChanged;
+                }
+                
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(WindowTitle));
                 OnPropertyChanged(nameof(StatusMessage));
@@ -43,6 +56,31 @@ public class MainViewModel : INotifyPropertyChanged
                     _documentManager.SetActiveDocument(_selectedTab.Document);
                 }
             }
+        }
+    }
+    
+    private void SelectedTab_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        // Relay property changes from the selected tab to the main view model
+        switch (e.PropertyName)
+        {
+            case nameof(DocumentTabViewModel.WordCount):
+                OnPropertyChanged(nameof(WordCount));
+                break;
+            case nameof(DocumentTabViewModel.CharacterCount):
+                OnPropertyChanged(nameof(CharacterCount));
+                break;
+            case nameof(DocumentTabViewModel.TabHeader):
+            case nameof(DocumentTabViewModel.WindowTitle):
+                OnPropertyChanged(nameof(WindowTitle));
+                break;
+            case nameof(DocumentTabViewModel.PreviewZoom):
+                OnPropertyChanged(nameof(PreviewZoom));
+                OnPropertyChanged(nameof(PreviewZoomPercentage));
+                break;
+            case nameof(DocumentTabViewModel.PreviewZoomPercentage):
+                OnPropertyChanged(nameof(PreviewZoomPercentage));
+                break;
         }
     }
     
@@ -96,6 +134,8 @@ public class MainViewModel : INotifyPropertyChanged
         var initialDoc = _documentManager.CreateNew();
         var initialTab = new DocumentTabViewModel(initialDoc);
         Tabs.Add(initialTab);
+        
+        // Use the property setter to ensure event subscription
         SelectedTab = initialTab;
     }
     
