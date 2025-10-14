@@ -19,6 +19,22 @@ public partial class MainWindow : Window
         // Setup drag and drop
         AddHandler(DragDrop.DropEvent, Drop);
         AddHandler(DragDrop.DragOverEvent, DragOver);
+        
+        // Setup keyboard shortcuts
+        KeyDown += OnKeyDown;
+        
+        // Setup mouse wheel zoom when the window is loaded
+        Loaded += MainWindow_Loaded;
+    }
+    
+    private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
+    {
+        // Setup mouse wheel zoom for preview
+        var previewScrollViewer = this.FindControl<ScrollViewer>("PreviewScrollViewer");
+        if (previewScrollViewer != null)
+        {
+            previewScrollViewer.PointerWheelChanged += PreviewScrollViewer_PointerWheelChanged;
+        }
     }
     
     // Drag and Drop Handlers
@@ -223,5 +239,45 @@ public partial class MainWindow : Window
         
         // Restore focus to editor
         editor.Focus();
+    }
+    
+    // Keyboard shortcuts handler
+    private void OnKeyDown(object? sender, KeyEventArgs e)
+    {
+        var ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        var shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        
+        if (ctrl && !shift)
+        {
+            switch (e.Key)
+            {
+                case Key.B:
+                    Bold_Click(null, new RoutedEventArgs());
+                    e.Handled = true;
+                    break;
+                case Key.I:
+                    Italic_Click(null, new RoutedEventArgs());
+                    e.Handled = true;
+                    break;
+                case Key.K:
+                    Link_Click(null, new RoutedEventArgs());
+                    e.Handled = true;
+                    break;
+            }
+        }
+    }
+    
+    // Mouse wheel zoom handler for preview
+    private void PreviewScrollViewer_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    {
+        if (ViewModel?.SelectedTab == null) return;
+        
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            // Zoom in/out with Ctrl+Wheel
+            var delta = e.Delta.Y;
+            ViewModel.SelectedTab.AdjustZoom(delta);
+            e.Handled = true;
+        }
     }
 }
