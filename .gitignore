@@ -400,3 +400,6 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 .idea/
+/docs/CRITICAL_FIX_v1.0.2.md
+/docs/EVENT_RELAY_FIX.md
+/docs/LOADED_EVENT_FIX.md
