@@ -1,0 +1,64 @@
+<!-- Comprehensive Theme Style Overrides -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- ================================================================
+         LIGHT THEME - Force all backgrounds to be light
+         ================================================================ -->
+    
+    <Style Selector="Window[RequestedThemeVariant=Light]">
+        <Setter Property="Background" Value="#FFFFFF"/>
+    </Style>
+    
+    <!-- Menu Bar Background - Light -->
+    <Style Selector="Window[RequestedThemeVariant=Light] Menu">
+        <Setter Property="Background" Value="#F5F5F5"/>
+    </Style>
+    
+    <!-- All Borders/Panels - Light -->
+    <Style Selector="Window[RequestedThemeVariant=Light] Border">
+        <Setter Property="Background" Value="#FFFFFF"/>
+        <Setter Property="BorderBrush" Value="#E1E1E1"/>
+    </Style>
+    
+    <!-- Grid Backgrounds - Light -->
+    <Style Selector="Window[RequestedThemeVariant=Light] Grid">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    
+    <!-- TextBlock Foreground - Light -->
+    <Style Selector="Window[RequestedThemeVariant=Light] TextBlock">
+        <Setter Property="Foreground" Value="#1A1A1A"/>
+    </Style>
+    
+    <!-- Button Foreground - Light -->
+    <Style Selector="Window[RequestedThemeVariant=Light] Button">
+        <Setter Property="Foreground" Value="#1A1A1A"/>
+    </Style>
+    
+    <!-- ScrollViewer Background - Light -->
+    <Style Selector="Window[RequestedThemeVariant=Light] ScrollViewer">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    
+    <!-- ================================================================
+         DARK THEME - Keep dark as-is
+         ================================================================ -->
+    
+    <Style Selector="Window[RequestedThemeVariant=Dark]">
+        <Setter Property="Background" Value="#1E1E1E"/>
+    </Style>
+    
+    <Style Selector="Window[RequestedThemeVariant=Dark] Menu">
+        <Setter Property="Background" Value="#2D2D30"/>
+    </Style>
+    
+    <Style Selector="Window[RequestedThemeVariant=Dark] TextBlock">
+        <Setter Property="Foreground" Value="#E4E4E4"/>
+    </Style>
+    
+    <Style Selector="Window[RequestedThemeVariant=Dark] Button">
+        <Setter Property="Foreground" Value="#E4E4E4"/>
+    </Style>
+    
+</Styles>

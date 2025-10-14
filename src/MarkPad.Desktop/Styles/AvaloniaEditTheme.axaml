@@ -1,0 +1,35 @@
+<!-- AvaloniaEdit Theme Support -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:editing="clr-namespace:AvaloniaEdit.Editing;assembly=AvaloniaEdit">
+    
+    <!-- 
+    AvaloniaEdit Color Overrides for Theme Support
+    Ensures the text editor respects light and dark themes
+    -->
+    
+    <!-- Light Theme Editor Colors -->
+    <Style Selector=":is(Window)[RequestedThemeVariant=Light] editing|TextArea">
+        <Setter Property="Background" Value="#FAFAFA"/>
+        <Setter Property="Foreground" Value="#1A1A1A"/>
+    </Style>
+    
+    <!-- Dark Theme Editor Colors -->
+    <Style Selector=":is(Window)[RequestedThemeVariant=Dark] editing|TextArea">
+        <Setter Property="Background" Value="#1E1E1E"/>
+        <Setter Property="Foreground" Value="#E4E4E4"/>
+    </Style>
+    
+    <!-- Line Number Margin - Light Theme -->
+    <Style Selector=":is(Window)[RequestedThemeVariant=Light] editing|TextArea /template/ Border#PART_LineNumberMargin">
+        <Setter Property="Background" Value="#F5F5F5"/>
+        <Setter Property="BorderBrush" Value="#E1E1E1"/>
+    </Style>
+    
+    <!-- Line Number Margin - Dark Theme -->
+    <Style Selector=":is(Window)[RequestedThemeVariant=Dark] editing|TextArea /template/ Border#PART_LineNumberMargin">
+        <Setter Property="Background" Value="#252526"/>
+        <Setter Property="BorderBrush" Value="#3E3E42"/>
+    </Style>
+    
+</Styles>

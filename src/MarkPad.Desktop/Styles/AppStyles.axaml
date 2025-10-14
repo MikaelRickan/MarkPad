@@ -1,0 +1,59 @@
+<!-- Application-wide custom styles -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <Style>
+        <Style.Resources>
+            <!-- Typography -->
+            <FontFamily x:Key="EditorFontFamily">Cascadia Code,Consolas,Courier New,monospace</FontFamily>
+            <FontFamily x:Key="PreviewFontFamily">Segoe UI,Arial,Helvetica,sans-serif</FontFamily>
+            <FontFamily x:Key="IconFontFamily">Segoe Fluent Icons,Segoe MDL2 Assets,Segoe UI Symbol</FontFamily>
+            <FontFamily x:Key="EmojiFontFamily">Segoe UI Emoji,Apple Color Emoji,Noto Color Emoji,sans-serif</FontFamily>
+            
+            <!-- Corner Radius -->
+            <CornerRadius x:Key="ControlCornerRadius">4</CornerRadius>
+        </Style.Resources>
+    </Style>
+    
+    <!-- Toolbar Button Style -->
+    <Style Selector="Button.ToolbarButton">
+        <Setter Property="Width" Value="36"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="8"/>
+    </Style>
+    
+    <Style Selector="Button.ToolbarButton:pointerover">
+        <Setter Property="Background">
+            <SolidColorBrush Color="{DynamicResource AppBorderColor}" Opacity="0.6"/>
+        </Setter>
+    </Style>
+    
+    <Style Selector="Button.ToolbarButton:pressed">
+        <Setter Property="Background">
+            <SolidColorBrush Color="{DynamicResource AppBorderColor}" Opacity="0.8"/>
+        </Setter>
+    </Style>
+    
+    <!-- Icon Text Style -->
+    <Style Selector="TextBlock.ToolbarIcon">
+        <Setter Property="FontFamily" Value="{StaticResource IconFontFamily}"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+    
+    <!-- Separator Style -->
+    <Style Selector="Separator.ToolbarSeparator">
+        <Setter Property="Width" Value="1"/>
+        <Setter Property="Height" Value="28"/>
+        <Setter Property="Margin" Value="6,0"/>
+        <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+    </Style>
+    
+</Styles>

@@ -1,0 +1,288 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:MarkPad.Desktop.ViewModels"
+        xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+        xmlns:md="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
+        x:Class="MarkPad.Desktop.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="{Binding WindowTitle}"
+        Width="1200" Height="700"
+        Background="{DynamicResource BackgroundBrush}"
+        DragDrop.AllowDrop="True">
+    
+    <Window.Styles>
+        <!-- Tab Close Button Style -->
+        <Style Selector="Button.TabCloseButton">
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style Selector="Button.TabCloseButton:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}"/>
+        </Style>
+    </Window.Styles>
+    
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!-- Menu Bar -->
+        <Menu Grid.Row="0" Background="{DynamicResource SurfaceBrush}">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Click="NewDocument_Click" InputGesture="Ctrl+N">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE8A5;" FontFamily="{StaticResource IconFontFamily}"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Open" Click="OpenDocument_Click" InputGesture="Ctrl+O">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE8E5;" FontFamily="{StaticResource IconFontFamily}"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Save" Click="SaveDocument_Click" InputGesture="Ctrl+S">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE74E;" FontFamily="{StaticResource IconFontFamily}"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Save _As" Click="SaveDocumentAs_Click" InputGesture="Ctrl+Shift+S">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE792;" FontFamily="{StaticResource IconFontFamily}"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="_Close Tab" Click="CloseTab_Click" InputGesture="Ctrl+W">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE711;" FontFamily="{StaticResource IconFontFamily}"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="E_xit" Click="Exit_Click">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE8BB;" FontFamily="{StaticResource IconFontFamily}"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            
+            <MenuItem Header="_View">
+                <MenuItem Header="_Theme">
+                    <MenuItem Header="System Default" Click="ThemeSystem_Click">
+                        <MenuItem.Icon>
+                            <TextBlock Text="&#xE770;" FontFamily="{StaticResource IconFontFamily}"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Light" Click="ThemeLight_Click">
+                        <MenuItem.Icon>
+                            <TextBlock Text="&#xE706;" FontFamily="{StaticResource IconFontFamily}"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Dark" Click="ThemeDark_Click">
+                        <MenuItem.Icon>
+                            <TextBlock Text="&#xE708;" FontFamily="{StaticResource IconFontFamily}"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        
+        <!-- Formatting Toolbar -->
+        <Border Grid.Row="1" 
+                Background="{DynamicResource ToolbarBackgroundBrush}" 
+                BorderBrush="{DynamicResource BorderBrush}" 
+                BorderThickness="0,1"
+                Padding="8,6">
+            <StackPanel Orientation="Horizontal">
+                <Button Classes="ToolbarButton" Click="Bold_Click" ToolTip.Tip="Bold (Ctrl+B)">
+                    <TextBlock Text="&#xE8DD;" Classes="ToolbarIcon" FontWeight="Bold"/>
+                </Button>
+                <Button Classes="ToolbarButton" Click="Italic_Click" ToolTip.Tip="Italic (Ctrl+I)">
+                    <TextBlock Text="&#xE8DB;" Classes="ToolbarIcon" FontStyle="Italic"/>
+                </Button>
+                <Button Classes="ToolbarButton" Click="Strikethrough_Click" ToolTip.Tip="Strikethrough">
+                    <TextBlock Text="&#xEDE0;" Classes="ToolbarIcon"/>
+                </Button>
+                        
+                <Separator Classes="ToolbarSeparator"/>
+                
+                <Button Classes="ToolbarButton" Click="Heading1_Click" ToolTip.Tip="Heading 1">
+                    <TextBlock Text="H₁" FontWeight="Bold" FontSize="15"/>
+                </Button>
+                <Button Classes="ToolbarButton" Click="Heading2_Click" ToolTip.Tip="Heading 2">
+                    <TextBlock Text="H₂" FontWeight="Bold" FontSize="14"/>
+                </Button>
+                <Button Classes="ToolbarButton" Click="Heading3_Click" ToolTip.Tip="Heading 3">
+                    <TextBlock Text="H₃" FontWeight="Bold" FontSize="13"/>
+                </Button>
+                        
+                <Separator Classes="ToolbarSeparator"/>
+                
+                <Button Classes="ToolbarButton" Click="BulletList_Click" ToolTip.Tip="Bullet List">
+                    <TextBlock Text="&#xE8FD;" Classes="ToolbarIcon"/>
+                </Button>
+                <Button Classes="ToolbarButton" Click="NumberedList_Click" ToolTip.Tip="Numbered List">
+                    <TextBlock Text="&#xE8FE;" Classes="ToolbarIcon"/>
+                </Button>
+                <Button Classes="ToolbarButton" Click="TaskList_Click" ToolTip.Tip="Task List">
+                    <TextBlock Text="&#xE73A;" Classes="ToolbarIcon"/>
+                </Button>
+                        
+                <Separator Classes="ToolbarSeparator"/>
+                
+                <Button Classes="ToolbarButton" Click="Link_Click" ToolTip.Tip="Insert Link (Ctrl+K)">
+                    <TextBlock Text="&#xE71B;" Classes="ToolbarIcon"/>
+                </Button>
+                <Button Classes="ToolbarButton" Click="Image_Click" ToolTip.Tip="Insert Image">
+                    <TextBlock Text="&#xE8B9;" Classes="ToolbarIcon"/>
+                </Button>
+                <Button Classes="ToolbarButton" Click="Code_Click" ToolTip.Tip="Code Block">
+                    <TextBlock Text="&#xE943;" Classes="ToolbarIcon"/>
+                </Button>
+                <Button Classes="ToolbarButton" Click="InlineCode_Click" ToolTip.Tip="Inline Code">
+                    <TextBlock Text="`" FontFamily="{StaticResource EditorFontFamily}" FontSize="16"/>
+                </Button>
+            </StackPanel>
+        </Border>
+        
+        <!-- TabControl for Multiple Documents -->
+        <TabControl Grid.Row="2" 
+                    ItemsSource="{Binding Tabs}"
+                    SelectedItem="{Binding SelectedTab}"
+                    Padding="0"
+                    Background="{DynamicResource BackgroundBrush}">
+            <TabControl.ItemTemplate>
+                <DataTemplate DataType="vm:DocumentTabViewModel">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="{Binding TabHeader}" VerticalAlignment="Center"/>
+                        <Button Classes="TabCloseButton" 
+                                Click="CloseTabButton_Click"
+                                CommandParameter="{Binding}"
+                                ToolTip.Tip="Close">
+                            <TextBlock Text="&#xE711;" 
+                                     FontFamily="{StaticResource IconFontFamily}" 
+                                     FontSize="10"/>
+                        </Button>
+                    </StackPanel>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            
+            <TabControl.ContentTemplate>
+                <DataTemplate DataType="vm:DocumentTabViewModel">
+                    <!-- Main Content Area - Split View -->
+                    <Grid ColumnDefinitions="*,5,*">
+                        <!-- Editor Panel -->
+                        <Border Grid.Column="0" 
+                                BorderBrush="{DynamicResource BorderBrush}" 
+                                BorderThickness="0,0,1,0">
+                            <Grid RowDefinitions="Auto,*">
+                                <Border Grid.Row="0" 
+                                        Background="{DynamicResource SurfaceBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        Padding="12,8">
+                                    <TextBlock Text="Editor" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="13"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                </Border>
+                                
+                                <avaloniaEdit:TextEditor Grid.Row="1"
+                                                Name="EditorTextBox"
+                                                Document="{Binding EditorDocument}"
+                                                ShowLineNumbers="True"
+                                                FontFamily="{StaticResource EditorFontFamily}"
+                                                FontSize="14"
+                                                Padding="16,12"
+                                                BorderThickness="0"
+                                                Background="{DynamicResource EditorBackgroundBrush}"
+                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </Grid>
+                        </Border>
+                        
+                        <!-- Splitter -->
+                        <GridSplitter Grid.Column="1" 
+                                     Background="{DynamicResource BorderBrush}"
+                                     ResizeDirection="Columns"
+                                     ResizeBehavior="PreviousAndNext"
+                                     HorizontalAlignment="Stretch"/>
+                        
+                        <!-- Preview Panel -->
+                        <Border Grid.Column="2" 
+                                Background="{DynamicResource BackgroundBrush}">
+                            <Grid RowDefinitions="Auto,*,Auto">
+                                <Border Grid.Row="0" 
+                                        Background="{DynamicResource SurfaceBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        Padding="12,8">
+                                    <TextBlock Text="Preview" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="13"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                </Border>
+                                
+                                <ScrollViewer Grid.Row="1" Name="PreviewScrollViewer">
+                                    <Border RenderTransformOrigin="0.5,0.5">
+                                        <Border.RenderTransform>
+                                            <ScaleTransform ScaleX="{Binding PreviewZoom}" 
+                                                          ScaleY="{Binding PreviewZoom}"/>
+                                        </Border.RenderTransform>
+                                        <md:MarkdownRenderer Name="MarkdownPreview"
+                                                           MarkdownBuilder="{Binding MarkdownBuilder}"
+                                                           Margin="16,12"/>
+                                    </Border>
+                                </ScrollViewer>
+                                
+                                <Border Grid.Row="2"
+                                        Background="{DynamicResource SurfaceBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="0,1,0,0"
+                                        Padding="8,4">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="🔍" FontSize="12"/>
+                                        <TextBlock Text="{Binding PreviewZoomPercentage}" 
+                                                 FontSize="11"
+                                                 Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="(Ctrl+Wheel to zoom)" 
+                                                 FontSize="10"
+                                                 Foreground="{DynamicResource TextSecondaryBrush}"
+                                                 Opacity="0.7"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="3" 
+                Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="12,6">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Grid.Column="0" 
+                           Text="{Binding StatusMessage}"
+                           FontSize="12"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           VerticalAlignment="Center"/>
+                
+                <TextBlock Grid.Column="1" 
+                           Text="{Binding WordCount, StringFormat='Words: {0}'}"
+                           FontSize="12"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Margin="0,0,16,0"
+                           VerticalAlignment="Center"/>
+                
+                <TextBlock Grid.Column="2" 
+                           Text="{Binding CharacterCount, StringFormat='Characters: {0}'}"
+                           FontSize="12"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

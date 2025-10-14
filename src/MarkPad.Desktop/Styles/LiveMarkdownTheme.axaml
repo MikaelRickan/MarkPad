@@ -1,0 +1,67 @@
+<!-- Window-Level Theme Overrides -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- 
+    CRITICAL: These styles override component themes at Window level
+    This ensures LiveMarkdown and AvaloniaEdit respect theme changes
+    -->
+    
+    <!-- =================================================================
+         LIGHT THEME OVERRIDES
+         ================================================================= -->
+    
+    <!-- Window Background - Light -->
+    <Style Selector="Window[RequestedThemeVariant=Light]">
+        <Setter Property="Background" Value="#FFFFFF"/>
+    </Style>
+    
+    <!-- LiveMarkdown Colors - Light Theme -->
+    <Style Selector="Window[RequestedThemeVariant=Light]">
+        <Style.Resources>
+            <Color x:Key="BorderColor">#E1E1E1</Color>
+            <Color x:Key="ForegroundColor">#1A1A1A</Color>
+            <Color x:Key="CardBackgroundColor">#F5F5F5</Color>
+            <Color x:Key="SecondaryCardBackgroundColor">#FAFAFA</Color>
+        </Style.Resources>
+    </Style>
+    
+    <!-- =================================================================
+         DARK THEME OVERRIDES
+         ================================================================= -->
+    
+    <!-- Window Background - Dark -->
+    <Style Selector="Window[RequestedThemeVariant=Dark]">
+        <Setter Property="Background" Value="#1E1E1E"/>
+    </Style>
+    
+    <!-- LiveMarkdown Colors - Dark Theme -->
+    <Style Selector="Window[RequestedThemeVariant=Dark]">
+        <Style.Resources>
+            <Color x:Key="BorderColor">#3E3E42</Color>
+            <Color x:Key="ForegroundColor">#E4E4E4</Color>
+            <Color x:Key="CardBackgroundColor">#252526</Color>
+            <Color x:Key="SecondaryCardBackgroundColor">#1E1E1E</Color>
+        </Style.Resources>
+    </Style>
+    
+    <!-- =================================================================
+         DEFAULT/SYSTEM THEME OVERRIDES
+         ================================================================= -->
+    
+    <!-- Window Background - Default -->
+    <Style Selector="Window[RequestedThemeVariant=Default]">
+        <Setter Property="Background" Value="#FFFFFF"/>
+    </Style>
+    
+    <!-- LiveMarkdown Colors - Default Theme (Light) -->
+    <Style Selector="Window[RequestedThemeVariant=Default]">
+        <Style.Resources>
+            <Color x:Key="BorderColor">#E1E1E1</Color>
+            <Color x:Key="ForegroundColor">#1A1A1A</Color>
+            <Color x:Key="CardBackgroundColor">#F5F5F5</Color>
+            <Color x:Key="SecondaryCardBackgroundColor">#FAFAFA</Color>
+        </Style.Resources>
+    </Style>
+    
+</Styles>

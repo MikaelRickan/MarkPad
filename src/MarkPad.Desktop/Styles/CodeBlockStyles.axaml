@@ -1,0 +1,32 @@
+<!-- Custom styles for LiveMarkdown code blocks with copy button -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- Style for code block copy buttons -->
+    <Style Selector="Button.CodeBlockCopy">
+        <Setter Property="Width" Value="24"/>
+        <Setter Property="Height" Value="24"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Margin" Value="4"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="ToolTip.Tip" Value="Copy to clipboard"/>
+    </Style>
+    
+    <Style Selector="Button.CodeBlockCopy:pointerover">
+        <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}"/>
+    </Style>
+    
+    <Style Selector="Button.CodeBlockCopy:pressed">
+        <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListMediumBrush}"/>
+    </Style>
+    
+    <!-- Icon inside copy button -->
+    <Style Selector="Button.CodeBlockCopy > TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Text" Value="📋"/>
+    </Style>
+</Styles>

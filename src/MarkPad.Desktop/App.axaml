@@ -1,0 +1,105 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MarkPad.Desktop.App"
+             RequestedThemeVariant="Default">
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml"/>
+        <StyleInclude Source="avares://LiveMarkdown.Avalonia/Styles.axaml"/>
+        <StyleInclude Source="/Styles/AppStyles.axaml"/>
+    </Application.Styles>
+    
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <!-- Light Theme -->
+                <ResourceDictionary x:Key='Light'>
+                    <!-- App Colors -->
+                    <Color x:Key="AppPrimaryColor">#0078D4</Color>
+                    <Color x:Key="AppBackgroundColor">#FFFFFF</Color>
+                    <Color x:Key="AppSurfaceColor">#F9F9F9</Color>
+                    <Color x:Key="AppBorderColor">#E1E1E1</Color>
+                    <Color x:Key="AppTextPrimaryColor">#1A1A1A</Color>
+                    <Color x:Key="AppTextSecondaryColor">#666666</Color>
+                    <Color x:Key="AppToolbarBackgroundColor">#F5F5F5</Color>
+                    <Color x:Key="AppEditorBackgroundColor">#FAFAFA</Color>
+                    
+                    <!-- App Brushes -->
+                    <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource AppPrimaryColor}"/>
+                    <SolidColorBrush x:Key="BackgroundBrush" Color="{DynamicResource AppBackgroundColor}"/>
+                    <SolidColorBrush x:Key="SurfaceBrush" Color="{DynamicResource AppSurfaceColor}"/>
+                    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource AppBorderColor}"/>
+                    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{DynamicResource AppTextPrimaryColor}"/>
+                    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{DynamicResource AppTextSecondaryColor}"/>
+                    <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="{DynamicResource AppToolbarBackgroundColor}"/>
+                    <SolidColorBrush x:Key="EditorBackgroundBrush" Color="{DynamicResource AppEditorBackgroundColor}"/>
+                    
+                    <!-- LiveMarkdown Colors -->
+                    <Color x:Key="BorderColor">#E1E1E1</Color>
+                    <Color x:Key="ForegroundColor">#1A1A1A</Color>
+                    <Color x:Key="CardBackgroundColor">#F5F5F5</Color>
+                    <Color x:Key="SecondaryCardBackgroundColor">#FAFAFA</Color>
+                </ResourceDictionary>
+                
+                <!-- Dark Theme -->
+                <ResourceDictionary x:Key='Dark'>
+                    <!-- App Colors -->
+                    <Color x:Key="AppPrimaryColor">#4CC2FF</Color>
+                    <Color x:Key="AppBackgroundColor">#1E1E1E</Color>
+                    <Color x:Key="AppSurfaceColor">#252526</Color>
+                    <Color x:Key="AppBorderColor">#3E3E42</Color>
+                    <Color x:Key="AppTextPrimaryColor">#E4E4E4</Color>
+                    <Color x:Key="AppTextSecondaryColor">#A0A0A0</Color>
+                    <Color x:Key="AppToolbarBackgroundColor">#2D2D30</Color>
+                    <Color x:Key="AppEditorBackgroundColor">#1E1E1E</Color>
+                    
+                    <!-- App Brushes -->
+                    <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource AppPrimaryColor}"/>
+                    <SolidColorBrush x:Key="BackgroundBrush" Color="{DynamicResource AppBackgroundColor}"/>
+                    <SolidColorBrush x:Key="SurfaceBrush" Color="{DynamicResource AppSurfaceColor}"/>
+                    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource AppBorderColor}"/>
+                    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{DynamicResource AppTextPrimaryColor}"/>
+                    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{DynamicResource AppTextSecondaryColor}"/>
+                    <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="{DynamicResource AppToolbarBackgroundColor}"/>
+                    <SolidColorBrush x:Key="EditorBackgroundBrush" Color="{DynamicResource AppEditorBackgroundColor}"/>
+                    
+                    <!-- LiveMarkdown Colors -->
+                    <Color x:Key="BorderColor">#3E3E42</Color>
+                    <Color x:Key="ForegroundColor">#E4E4E4</Color>
+                    <Color x:Key="CardBackgroundColor">#252526</Color>
+                    <Color x:Key="SecondaryCardBackgroundColor">#1E1E1E</Color>
+                </ResourceDictionary>
+                
+                <!-- Default/System Theme (Light) -->
+                <ResourceDictionary x:Key='Default'>
+                    <!-- App Colors -->
+                    <Color x:Key="AppPrimaryColor">#0078D4</Color>
+                    <Color x:Key="AppBackgroundColor">#FFFFFF</Color>
+                    <Color x:Key="AppSurfaceColor">#F9F9F9</Color>
+                    <Color x:Key="AppBorderColor">#E1E1E1</Color>
+                    <Color x:Key="AppTextPrimaryColor">#1A1A1A</Color>
+                    <Color x:Key="AppTextSecondaryColor">#666666</Color>
+                    <Color x:Key="AppToolbarBackgroundColor">#F5F5F5</Color>
+                    <Color x:Key="AppEditorBackgroundColor">#FAFAFA</Color>
+                    
+                    <!-- App Brushes -->
+                    <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource AppPrimaryColor}"/>
+                    <SolidColorBrush x:Key="BackgroundBrush" Color="{DynamicResource AppBackgroundColor}"/>
+                    <SolidColorBrush x:Key="SurfaceBrush" Color="{DynamicResource AppSurfaceColor}"/>
+                    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource AppBorderColor}"/>
+                    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{DynamicResource AppTextPrimaryColor}"/>
+                    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{DynamicResource AppTextSecondaryColor}"/>
+                    <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="{DynamicResource AppToolbarBackgroundColor}"/>
+                    <SolidColorBrush x:Key="EditorBackgroundBrush" Color="{DynamicResource AppEditorBackgroundColor}"/>
+                    
+                    <!-- LiveMarkdown Colors -->
+                    <Color x:Key="BorderColor">#E1E1E1</Color>
+                    <Color x:Key="ForegroundColor">#1A1A1A</Color>
+                    <Color x:Key="CardBackgroundColor">#F5F5F5</Color>
+                    <Color x:Key="SecondaryCardBackgroundColor">#FAFAFA</Color>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
