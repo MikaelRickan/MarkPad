@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Primitives.PopupPositioning;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
@@ -17,6 +19,7 @@ public partial class MainWindow : Window
 {
     private MainViewModel? ViewModel => DataContext as MainViewModel;
     private TextEditor? _currentEditor;
+    private ScrollViewer? _currentPreviewScrollViewer;
     
     public MainWindow()
     {
@@ -34,6 +37,9 @@ public partial class MainWindow : Window
         
         // Track DataContext changes to wire up tab changes
         DataContextChanged += MainWindow_DataContextChanged;
+        
+        // Add global pointer wheel handler at window level for better event capture
+        AddHandler(PointerWheelChangedEvent, Window_PointerWheelChanged, RoutingStrategies.Tunnel);
     }
     
     private void MainWindow_DataContextChanged(object? sender, EventArgs e)
@@ -46,10 +52,10 @@ public partial class MainWindow : Window
     
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        // When the selected tab changes, find the new editor
+        // When the selected tab changes, find the new editor and preview
         if (e.PropertyName == nameof(MainViewModel.SelectedTab))
         {
-            UpdateCurrentEditor();
+            UpdateCurrentControls();
         }
     }
     
@@ -62,19 +68,23 @@ public partial class MainWindow : Window
             tabControl.SelectionChanged += TabControl_SelectionChanged;
             
             // Also listen to when containers are prepared
-            tabControl.Loaded += (s, args) => UpdateCurrentEditor();
+            tabControl.Loaded += (s, args) => UpdateCurrentControls();
         }
         
         // Find initial editor with delay to ensure visual tree is ready
         Avalonia.Threading.Dispatcher.UIThread.Post(() => 
         {
-            UpdateCurrentEditor();
+            UpdateCurrentControls();
         }, Avalonia.Threading.DispatcherPriority.Loaded);
     }
     
     private void TabControl_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        UpdateCurrentEditor();
+        // Delay the update to ensure the visual tree is ready after tab change
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => 
+        {
+            UpdateCurrentControls();
+        }, Avalonia.Threading.DispatcherPriority.Loaded);
     }
     
     // Called when the TextEditor is loaded in a tab
@@ -84,6 +94,16 @@ public partial class MainWindow : Window
         {
             _currentEditor = editor;
             System.Diagnostics.Debug.WriteLine($"✅ Editor loaded and assigned: {editor.GetHashCode()}");
+            
+            // Auto-focus the editor when it first loads (for new documents or first tab)
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                if (editor.IsVisible && editor == _currentEditor)
+                {
+                    editor.Focus();
+                    System.Diagnostics.Debug.WriteLine("✅ Editor auto-focused on load");
+                }
+            }, Avalonia.Threading.DispatcherPriority.Input);
         }
     }
     
@@ -92,44 +112,115 @@ public partial class MainWindow : Window
     {
         if (sender is ScrollViewer scrollViewer)
         {
-            // Remove old handler if exists (in case of reload)
+            _currentPreviewScrollViewer = scrollViewer;
+            
+            // Remove old handlers if exists (in case of reload)
             scrollViewer.PointerWheelChanged -= PreviewScrollViewer_PointerWheelChanged;
-            // Add new handler
+            scrollViewer.PointerEntered -= PreviewScrollViewer_PointerEntered;
+            scrollViewer.PointerExited -= PreviewScrollViewer_PointerExited;
+            
+            // Add new handlers
             scrollViewer.PointerWheelChanged += PreviewScrollViewer_PointerWheelChanged;
+            scrollViewer.PointerEntered += PreviewScrollViewer_PointerEntered;
+            scrollViewer.PointerExited += PreviewScrollViewer_PointerExited;
+            
             System.Diagnostics.Debug.WriteLine($"✅ ScrollViewer loaded and wired: {scrollViewer.GetHashCode()}");
         }
     }
     
-    private void UpdateCurrentEditor()
+    private bool _isPointerOverPreview = false;
+    
+    private void PreviewScrollViewer_PointerEntered(object? sender, PointerEventArgs e)
     {
-        // Use a short delay to ensure visual tree is ready
-        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        _isPointerOverPreview = true;
+        System.Diagnostics.Debug.WriteLine("🔍 Pointer entered preview area");
+    }
+    
+    private void PreviewScrollViewer_PointerExited(object? sender, PointerEventArgs e)
+    {
+        _isPointerOverPreview = false;
+        System.Diagnostics.Debug.WriteLine("🔍 Pointer exited preview area");
+    }
+    
+    private void UpdateCurrentControls()
+    {
+        var tabControl = this.FindControl<TabControl>("DocumentTabs");
+        if (tabControl == null) return;
+        
+        // Get the selected content presenter
+        if (tabControl.SelectedContent is Control selectedContent)
         {
-            var tabControl = this.FindControl<TabControl>("DocumentTabs");
-            if (tabControl == null) return;
-            
-            // Find all TextEditors in the visual tree
-            var editors = tabControl.GetVisualDescendants().OfType<TextEditor>().ToList();
-            
+            // Find TextEditor in the visual tree
+            var editors = selectedContent.GetVisualDescendants().OfType<TextEditor>().ToList();
             if (editors.Count > 0)
             {
-                // The visible editor is the one we want
+                var previousEditor = _currentEditor;
                 _currentEditor = editors.FirstOrDefault(e => e.IsVisible);
                 
                 if (_currentEditor != null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"✅ Found editor via tree search: {_currentEditor.GetHashCode()}");
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("❌ No visible editor found");
+                    System.Diagnostics.Debug.WriteLine($"✅ Found editor: {_currentEditor.GetHashCode()}");
+                    
+                    // Auto-focus the editor when switching tabs or on first load
+                    if (_currentEditor != previousEditor)
+                    {
+                        // Use a small delay to ensure the control is fully ready
+                        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                        {
+                            if (_currentEditor != null && _currentEditor.IsVisible)
+                            {
+                                _currentEditor.Focus();
+                                System.Diagnostics.Debug.WriteLine("✅ Editor focused after tab switch");
+                            }
+                        }, Avalonia.Threading.DispatcherPriority.Input);
+                    }
                 }
             }
-            else
+            
+            // Find ScrollViewer in the visual tree (for the preview pane)
+            var scrollViewers = selectedContent.GetVisualDescendants()
+                .OfType<ScrollViewer>()
+                .Where(sv => sv.Name == "PreviewScrollViewer")
+                .ToList();
+                
+            if (scrollViewers.Count > 0)
             {
-                System.Diagnostics.Debug.WriteLine("❌ No editors found in visual tree");
+                var newScrollViewer = scrollViewers.FirstOrDefault();
+                if (newScrollViewer != _currentPreviewScrollViewer)
+                {
+                    // Clean up old handlers
+                    if (_currentPreviewScrollViewer != null)
+                    {
+                        _currentPreviewScrollViewer.PointerWheelChanged -= PreviewScrollViewer_PointerWheelChanged;
+                        _currentPreviewScrollViewer.PointerEntered -= PreviewScrollViewer_PointerEntered;
+                        _currentPreviewScrollViewer.PointerExited -= PreviewScrollViewer_PointerExited;
+                    }
+                    
+                    // Set new ScrollViewer and wire up handlers
+                    _currentPreviewScrollViewer = newScrollViewer;
+                    if (_currentPreviewScrollViewer != null)
+                    {
+                        _currentPreviewScrollViewer.PointerWheelChanged += PreviewScrollViewer_PointerWheelChanged;
+                        _currentPreviewScrollViewer.PointerEntered += PreviewScrollViewer_PointerEntered;
+                        _currentPreviewScrollViewer.PointerExited += PreviewScrollViewer_PointerExited;
+                        System.Diagnostics.Debug.WriteLine($"✅ Found and wired ScrollViewer: {_currentPreviewScrollViewer.GetHashCode()}");
+                    }
+                }
             }
-        }, Avalonia.Threading.DispatcherPriority.Loaded);
+        }
+    }
+    
+    // Global pointer wheel handler to catch events at window level
+    private void Window_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    {
+        // Only process if Ctrl is held and pointer is over preview
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && _isPointerOverPreview && ViewModel?.SelectedTab != null)
+        {
+            var delta = e.Delta.Y;
+            ViewModel.SelectedTab.AdjustZoom(delta);
+            e.Handled = true;
+            System.Diagnostics.Debug.WriteLine($"🔍 Window-level zoom: delta={delta}, zoom={ViewModel.SelectedTab.PreviewZoomPercentage}");
+        }
     }
     
     // Drag and Drop Handlers
@@ -218,8 +309,7 @@ public partial class MainWindow : Window
     private void Exit_Click(object? sender, RoutedEventArgs e)
     {
         Close();
-    }
-    
+    }    
     // Theme switching handlers
     private void ThemeSystem_Click(object? sender, RoutedEventArgs e)
     {
@@ -310,10 +400,21 @@ public partial class MainWindow : Window
         int selectionStart = _currentEditor.SelectionStart;
         int selectionLength = _currentEditor.SelectionLength;
         
+        // Store cursor position for restoration
+        int expectedCursorPos = selectionStart + prefix.Length + selectionLength;
+        
         ViewModel.ApplyFormatting(prefix, suffix, selectionStart, selectionLength);
         
-        // Restore focus to editor
-        _currentEditor.Focus();
+        // Restore focus and cursor position with a small delay
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            if (_currentEditor != null)
+            {
+                _currentEditor.Focus();
+                _currentEditor.CaretOffset = expectedCursorPos;
+                System.Diagnostics.Debug.WriteLine($"✅ Restored focus and cursor to position {expectedCursorPos}");
+            }
+        }, Avalonia.Threading.DispatcherPriority.Input);
     }
     
     private void ApplyLinePrefix(string prefix)
@@ -322,10 +423,21 @@ public partial class MainWindow : Window
         
         int selectionStart = _currentEditor.SelectionStart;
         
+        // Calculate expected cursor position (after the prefix)
+        int expectedCursorPos = selectionStart + prefix.Length;
+        
         ViewModel.ApplyLineFormatting(prefix, selectionStart);
         
-        // Restore focus to editor
-        _currentEditor.Focus();
+        // Restore focus and cursor position with a small delay
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            if (_currentEditor != null)
+            {
+                _currentEditor.Focus();
+                _currentEditor.CaretOffset = expectedCursorPos;
+                System.Diagnostics.Debug.WriteLine($"✅ Restored focus and cursor to position {expectedCursorPos}");
+            }
+        }, Avalonia.Threading.DispatcherPriority.Input);
     }
     
     // Keyboard shortcuts handler
@@ -354,7 +466,7 @@ public partial class MainWindow : Window
         }
     }
     
-    // Mouse wheel zoom handler for preview
+    // Mouse wheel zoom handler for preview (ScrollViewer level)
     private void PreviewScrollViewer_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
     {
         if (ViewModel?.SelectedTab == null) return;
@@ -365,6 +477,81 @@ public partial class MainWindow : Window
             var delta = e.Delta.Y;
             ViewModel.SelectedTab.AdjustZoom(delta);
             e.Handled = true;
+            System.Diagnostics.Debug.WriteLine($"🔍 ScrollViewer zoom: delta={delta}, zoom={ViewModel.SelectedTab.PreviewZoomPercentage}");
+        }
+    }
+    
+    // Zoom control button handlers
+    private void ZoomPreset_Click(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel?.SelectedTab == null) return;
+        
+        if (sender is Button button && button.Tag is string tagValue)
+        {
+            if (double.TryParse(tagValue, out double percentage))
+            {
+                ViewModel.SelectedTab.PreviewZoom = percentage / 100.0;
+                System.Diagnostics.Debug.WriteLine($"🔍 Preset zoom applied: {percentage}%");
+                
+                // Close the flyout - find it in the visual tree
+                var parent = button.Parent;
+                while (parent != null && parent is not FlyoutPresenter)
+                {
+                    if (parent is Visual visual)
+                    {
+                        parent = visual.GetVisualParent();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                if (parent?.Parent is Popup popup)
+                {
+                    popup.Close();
+                }
+            }
+        }
+    }
+    
+    private void CustomZoom_Click(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel?.SelectedTab == null) return;
+        
+        if (sender is Button button)
+        {
+            // Find the NumericUpDown in the same parent
+            var grid = button.Parent as Grid;
+            if (grid != null)
+            {
+                var customInput = grid.Children
+                    .OfType<NumericUpDown>()
+                    .FirstOrDefault(n => n.Name == "CustomZoomInput");
+                
+                if (customInput != null && customInput.Value.HasValue)
+                {
+                    ViewModel.SelectedTab.PreviewZoom = (double)customInput.Value.Value / 100.0;
+                    System.Diagnostics.Debug.WriteLine($"🔍 Custom zoom applied: {customInput.Value.Value}%");
+                    
+                    // Close the flyout
+                    var parent = button.Parent;
+                    while (parent != null && parent is not FlyoutPresenter)
+                    {
+                        if (parent is Visual visual)
+                        {
+                            parent = visual.GetVisualParent();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    if (parent?.Parent is Popup popup)
+                    {
+                        popup.Close();
+                    }
+                }
+            }
         }
     }
 }

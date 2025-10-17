@@ -65,11 +65,17 @@ public class DocumentTabViewModel : INotifyPropertyChanged
                 _previewZoom = Math.Clamp(value, 0.5, 3.0);
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(PreviewZoomPercentage));
+                OnPropertyChanged(nameof(PreviewZoomPercent));
             }
         }
     }
     
     public string PreviewZoomPercentage => $"{(int)(_previewZoom * 100)}%";
+    public decimal PreviewZoomPercent
+    {
+        get => (decimal)(_previewZoom * 100);
+        set => PreviewZoom = (double)(value / 100m);
+    }
     
     public int WordCount
     {

@@ -27,6 +27,6 @@
     <!-- Icon inside copy button -->
     <Style Selector="Button.CodeBlockCopy > TextBlock">
         <Setter Property="FontSize" Value="12"/>
-        <Setter Property="Text" Value="📋"/>
+        <Setter Property="Text" Value="aaa📋"/>
     </Style>
 </Styles>
